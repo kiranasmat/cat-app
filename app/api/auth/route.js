@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import fs from 'fs';
 import { pipeline } from "stream";
 import {promisify} from 'util';
-
+import { User } from "@/models/user";
 
 
 async function getRequestType(request){
@@ -50,6 +50,11 @@ export async function POST(req){
         console.log(meriFile);
         
         dataBhejo(meriFile.stream(), fs.createWriteStream(cf+'/'+meriFile.name) );
+        let user =  User();
+        user.name = request.data.get('name')
+        user.password = request.data.get('password')
+        await user.save();
+
 
     }else if(request.action == "login"){
 
@@ -57,6 +62,16 @@ export async function POST(req){
         console.log(request.data)
 
     }
+    else if(request.action == "users-lao"){
+
+        let users = await User.find();
+        
+        return NextResponse.json({
+         users
+        })
+ 
+     }
+ 
 
 
     let cf = process.cwd();
